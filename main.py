@@ -4,7 +4,9 @@ from os import getenv, remove, makedirs, path
 from bs4 import BeautifulSoup
 from ebooklib import epub
 from threading import Thread
+import sys
 
+USE_CACHE = getenv('FF_CACHE', 'no') == 'yes'
 
 def and_then(opt, mapper):
     """
@@ -70,7 +72,7 @@ def extract_header(fic_body):
     else:
       fic_info['Chapters'] = '1'
       chapter_titles[1] = fic_info['title']
-    
+
     fic_info['chapter_titles'] = chapter_titles
     return fic_info
 
@@ -233,14 +235,11 @@ class OutStream:
             print("[%s] PC LOAD LETTER" % self.name)
 
 
-
 def his_version():
 
 	if len(sys.argv) < 2:
 	    print("Nécéssite un ou plusieurs liens vers fanfiction.net!")
 	    exit(-1)
-
-	USE_CACHE = getenv('FF_CACHE', 'no') == 'yes'
 
 	# ex: https://www.fanfiction.net/s/10126177/1/Fratricidal
 	fanfic_links = sys.argv[1:]
@@ -259,7 +258,6 @@ def his_version():
 
 def my_version():
 
-	import sys
 	import lxml
 	from requests_html import HTMLSession
 
@@ -279,6 +277,6 @@ def my_version():
 	        for kid in chapterElement.iterchildren():
 	            print(lxml.html.tostring(kid, encoding='unicode'))
 
-	            
+
 if __name__ == '__main__':
 	his_version()
