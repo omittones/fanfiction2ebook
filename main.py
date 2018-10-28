@@ -1,4 +1,3 @@
-import sys
 import re
 import requests
 from os import getenv, remove, makedirs, path
@@ -234,22 +233,52 @@ class OutStream:
             print("[%s] PC LOAD LETTER" % self.name)
 
 
-if len(sys.argv) < 2:
-    print("Nécéssite un ou plusieurs liens vers fanfiction.net!")
-    exit(-1)
 
-USE_CACHE = getenv('FF_CACHE', 'no') == 'yes'
+def his_version():
 
-# ex: https://www.fanfiction.net/s/10126177/1/Fratricidal
-fanfic_links = sys.argv[1:]
-threads = []
-for link in fanfic_links:
-    thread = FictionThread(link)
-    thread.start()
-    threads.append(thread)
+	if len(sys.argv) < 2:
+	    print("Nécéssite un ou plusieurs liens vers fanfiction.net!")
+	    exit(-1)
 
-while len(threads) > 0:
-    head, *threads = threads
-    head.join()
+	USE_CACHE = getenv('FF_CACHE', 'no') == 'yes'
 
-print("COMPLETE")
+	# ex: https://www.fanfiction.net/s/10126177/1/Fratricidal
+	fanfic_links = sys.argv[1:]
+	threads = []
+	for link in fanfic_links:
+	    thread = FictionThread(link)
+	    thread.start()
+	    threads.append(thread)
+
+	while len(threads) > 0:
+	    head, *threads = threads
+	    head.join()
+
+	print("COMPLETE")
+
+
+def my_version():
+
+	import sys
+	import lxml
+	from requests_html import HTMLSession
+
+	session = HTMLSession()
+	firstChapter = session.get('https://www.fictionpress.com/s/2961893/1/Mother-of-Learning')
+	if not 'Good Morning Brother' in firstChapter.text:
+	    raise Exception('GM not found')
+	else:
+	    options = firstChapter.html.find('#chap_select:first option')
+	    chapters = [option.attrs['value'] for option in options]
+	    for chapter in chapters:
+	        print(f'Processing {chapter} of {len(chapters)} chapters...', file=sys.stderr)
+	        url = f'https://www.fictionpress.com/s/2961893/{chapter}/Mother-of-Learning'
+	        chapterHtml = session.get(url)
+	        chapterElement = chapterHtml.html.find('#storytext', first=True).element
+	        print(chapterElement.text or '')
+	        for kid in chapterElement.iterchildren():
+	            print(lxml.html.tostring(kid, encoding='unicode'))
+
+	            
+if __name__ == '__main__':
+	his_version()
