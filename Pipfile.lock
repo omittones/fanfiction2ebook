@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "a0f738f8346360e8908fd93f51788943e3b1622600f2f6525e9b26ce93280abd"
+            "sha256": "af15c4542c4ab278fd7c5f1e688c68132b4d728a5d844bd29b9619aebf1c7977"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -29,6 +29,7 @@
                 "sha256:90f8e61121d6ae58362ce3bed8cd997efb00c914eae0ff3d363c32f9a9822d10",
                 "sha256:f0abd31228055d698bb392a826528ea08ebb9959e6bea17c606fd9c9009db938"
             ],
+            "index": "pypi",
             "version": "==4.6.3"
         },
         "bs4": {
@@ -57,6 +58,13 @@
                 "sha256:3b5103e8789da9e936a68d993b70df732d06b8bb9a337a05ed4eb52c17ef7206"
             ],
             "version": "==1.0.3"
+        },
+        "ebooklib": {
+            "hashes": [
+                "sha256:c4fd1af2fb15f2b82b3d8cc70b33a6735a16c77bbea8d92eba2b22448ced604e"
+            ],
+            "index": "pypi",
+            "version": "==0.17"
         },
         "fake-useragent": {
             "hashes": [
@@ -104,6 +112,7 @@
                 "sha256:edd9c13a97f6550f9da2236126bb51c092b3b1ce6187f2bd966533ad794bbb5e",
                 "sha256:fa39ea60d527fbdd94215b5e5552f1c6a912624521093f1384a491a8ad89ad8b"
             ],
+            "index": "pypi",
             "version": "==4.2.5"
         },
         "parse": {
