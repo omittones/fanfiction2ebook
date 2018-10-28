@@ -18,14 +18,14 @@ def and_then(opt, mapper):
         return mapper(opt)
 
 
-def download_chapter(fid, ch):
+def download_chapter(fid, ch, origin):
     """
     Downloads a specific chapter from fic_id
     :param fid: Fanfiction ID
     :param ch: Chapter number
     :return: chapter contents
     """
-    url = "https://www.fanfiction.net/s/%s/%s" % (fid, ch)
+    url = "https://www.%s/s/%s/%s" % (origin, fid, ch)
     resp = requests.get(url)
     if resp.status_code != 200:
         raise FileNotFoundError("Unable to download %s" % url)
@@ -110,27 +110,29 @@ def write_chapter(chapter_body, fid, cid):
     with open(fname, 'w+') as f:
         f.write(chapter_body)
 
-
-def package_fanfic(fanfic_link):
-    match = re.match(r"^https?://(www.)?fanfiction.net/s/(?P<id>\w+)/(?P<ch>\w+)/(?P<slug>.+)$", fanfic_link)
+def parse_link(fanfic_link):
+    match = re.match(r"^https?://(www\.)?(?P<origin>fanfiction\.net|fictionpress\.com)/s/(?P<id>\w+)/(?P<ch>\w+)/(?P<slug>.+)$", fanfic_link)
     if match is None:
         print("Impossible de récupérer les informations depuis l'URL: %s" % fanfic_link)
         exit(-1)
+    return match.group('id', 'slug', 'origin')
 
-    fic_id, fic_slug = match.group('id', 'slug')
+def package_fanfic(fanfic_link):
+
+    fic_id, fic_slug, fic_origin = parse_link(fanfic_link)
 
     out = OutStream(fic_slug)
 
     try:
         # Fetch
         out.print("Fetching metadata from first chapter ...")
-        chapter_data = download_chapter(fic_id, 1)
+        chapter_data = download_chapter(fic_id, 1, fic_origin)
         heading = extract_header(chapter_data)
         chapter_count = int(heading['Chapters'])
         out.print("FANFICTION: %s by %s, %s chapters" % (heading['title'], heading['author'], chapter_count))
 
         ebook = epub.EpubBook()
-        ebook.set_identifier("fanfition-%s" % fic_id)
+        ebook.set_identifier("fanfiction-%s" % fic_id)
         ebook.set_title(heading['title'])
         ebook.add_author(heading['author'])
         doc_style = epub.EpubItem(
@@ -175,7 +177,7 @@ def package_fanfic(fanfic_link):
                 if path.exists(chapter_file) and USE_CACHE:
                     chapter_data = open(chapter_file).read()
                 else:
-                    chapter_data = download_chapter(fic_id, ch_id)
+                    chapter_data = download_chapter(fic_id, ch_id, fic_origin)
                     chapter_data = extract_chapter(chapter_data, ch_title)
                     if USE_CACHE:
                         write_chapter(chapter_data, fic_id, ch_id)
@@ -242,6 +244,7 @@ def his_version():
 	    exit(-1)
 
 	# ex: https://www.fanfiction.net/s/10126177/1/Fratricidal
+    # ex: https://www.fictionpress.com/s/2961893/1/Mother-of-Learning
 	fanfic_links = sys.argv[1:]
 	threads = []
 	for link in fanfic_links:
